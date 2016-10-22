@@ -3,9 +3,10 @@ queue.on("fileload", handleFileLoad);
 queue.on("complete", handleComplete);
 queue.loadManifest([{
         id: "bunny",
-        src: "../assets/bunny.png"
+        src: "./assets/bunny.png"
     }])
     // queue.loadFile("assets/bunny.png")
+
 queue.load()
 
 var images = {}
@@ -18,6 +19,7 @@ function handleFileLoad(o) {
 }
 
 function handleComplete(ev) {
+    console.log(images["bunny"])
     init()
 }
 // initializing the stage
@@ -126,13 +128,16 @@ class Bunny extends Unit {
     update() {
         super.update()
         if (this.moving.up) this.bmp.y = (this.bmp.y - this.speed <= 0) ? 0 : this.bmp.y - this.speed
-        this.bmp.y = (this.bmp.y + this.speed >= this.game.canvas.height - this.bmp.image.height) ? this.game.canvas.height - this.bmp.image.height : this.bmp.y + this.speed
+        if (this.moving.down) this.bmp.y = (this.bmp.y + this.speed >= this.game.canvas.height - this.rect.height)
+        ? this.game.canvas.height - this.rect.height : this.bmp.y + this.speed
+        if (this.moving.left) this.bmp.x = (this.bmp.x - this.speed <= 0) ? 0 : this.bmp.x - this.speed
+        if (this.moving.right) this.bmp.x = (this.bmp.x + this.speed >= this.game.canvas.width - this.rect.width) ? this.game.canvas.width - this.rect.width : this.bmp.x + this.speed
+
     }
     move(dir) {
         this.moving[dir] = true
     }
     stopMove(dir) {
-        console.log("stopped")
         this.moving[dir] = false
     }
 }
@@ -154,7 +159,7 @@ function init() {
 
     player = new Bunny(game, 50, 50, {
         speed: 5,
-        size: [50, 100]
+        // size: [50, 100]
     })
 
 
@@ -182,18 +187,15 @@ function init() {
             return
         }
         if (key.code === "KeyS") {
-            console.log(key.code)
-
+            player.move("down")
             return
         }
         if (key.code === "KeyA") {
-            console.log(key.code)
-            player.bmp.x = (player.bmp.x - player.speed <= 0) ? 0 : player.bmp.x - player.speed
+            player.move("left")
             return
         }
         if (key.code === "KeyD") {
-            console.log(key.code)
-            player.bmp.x = (player.bmp.x + player.speed >= stage.canvas.width - player.bmp.image.width) ? stage.canvas.width - player.bmp.image.width : player.bmp.x + player.speed
+            player.move("right")
             return
         }
     }
@@ -201,6 +203,18 @@ function init() {
     function handleKeyUp(key) {
         if (key.code === "KeyW") {
             player.stopMove("up")
+        }
+        if (key.code === "KeyS") {
+            player.stopMove("down")
+            return
+        }
+        if (key.code === "KeyA") {
+            player.stopMove("left")
+            return
+        }
+        if (key.code === "KeyD") {
+            player.stopMove("right")
+            return
         }
     }
 }
